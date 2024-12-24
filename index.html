@@ -16,8 +16,9 @@
             margin: 20px;
         }
         #reader {
-            width: 90%;
+            width: 100%;
             max-width: 400px;
+            height: 300px;
             margin: auto;
         }
         .result {
@@ -34,26 +35,33 @@
         <div class="result" id="result">אין נתונים לסריקה עדיין.</div>
     </div>
     <script>
+        // הגדרת הסורק
         const html5QrCode = new Html5Qrcode("reader");
-        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
-        function onScanSuccess(decodedText) {
-            document.getElementById("result").innerText = `תוצאה: ${decodedText}`;
-            html5QrCode.stop().catch(err => console.error(err));
+        // פונקציה להפעלת הסורק
+        function startScanner() {
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+            html5QrCode.start(
+                { facingMode: "environment" }, // מצלמה אחורית
+                config,
+                (decodedText) => {
+                    // הצלחה: הצגת התוצאה
+                    document.getElementById("result").innerText = `תוצאה: ${decodedText}`;
+                    html5QrCode.stop(); // עצירת הסריקה לאחר תוצאה
+                },
+                (error) => {
+                    console.warn(`שגיאה: ${error}`);
+                }
+            ).catch(err => {
+                console.error("שגיאה באתחול המצלמה:", err);
+            });
         }
 
-        function onScanFailure(error) {
-            console.warn(`שגיאה: ${error}`);
-        }
-
-        html5QrCode.start(
-            { facingMode: "environment" },
-            config,
-            onScanSuccess,
-            onScanFailure
-        ).catch(err => {
-            console.error(`שגיאה באתחול: ${err}`);
-        });
+        // הפעלת הסורק ברגע שהדף נטען
+        window.onload = () => {
+            startScanner();
+        };
     </script>
 </body>
 </html>
