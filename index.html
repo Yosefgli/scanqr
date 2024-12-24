@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>סריקת ברקודים</title>
+    <!-- טוען את ספריית html5-qrcode -->
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <style>
         body {
@@ -36,34 +37,25 @@
         <button onclick="startScanner()">הפעל סורק</button>
     </div>
     <script>
-        let html5QrCode;
-
+        // פונקציה להפעלת הסורק
         function startScanner() {
-            html5QrCode = new Html5Qrcode("reader");
+            const html5QrCode = new Html5Qrcode("reader"); // ודא שהספרייה נטענה קודם
 
-            // בקשת מצלמה אקטיבית
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(() => {
-                    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
-                    html5QrCode.start(
-                        { facingMode: "environment" }, // מצלמה אחורית
-                        config,
-                        (decodedText) => {
-                            document.getElementById("result").innerText = `תוצאה: ${decodedText}`;
-                            html5QrCode.stop(); // עצירת הסריקה לאחר תוצאה
-                        },
-                        (error) => {
-                            console.warn(`שגיאה: ${error}`);
-                        }
-                    ).catch(err => {
-                        console.error("שגיאה באתחול המצלמה:", err);
-                    });
-                })
-                .catch((err) => {
-                    alert("גישה למצלמה נדחתה או שגיאה בגישה למצלמה.");
-                    console.error("שגיאת גישה למצלמה:", err);
-                });
+            html5QrCode.start(
+                { facingMode: "environment" }, // מצלמה אחורית
+                config,
+                (decodedText) => {
+                    document.getElementById("result").innerText = `תוצאה: ${decodedText}`;
+                    html5QrCode.stop(); // עצירת הסריקה לאחר תוצאה
+                },
+                (error) => {
+                    console.warn(`שגיאה: ${error}`);
+                }
+            ).catch(err => {
+                console.error("שגיאה באתחול המצלמה:", err);
+            });
         }
     </script>
 </body>
