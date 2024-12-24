@@ -1,95 +1,36 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html>
 <head>
+    <title>סורק ברקודים</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>סריקת ברקודים</title>
-    <!-- טוען את ספריית html5-qrcode -->
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            margin: 20px;
-        }
-        #reader {
-            width: 100%;
-            max-width: 400px;
-            height: 300px;
-            margin: auto;
-        }
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #333;
-        }
-        h1 {
-            font-size: 24px;
-            color: #4CAF50;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>סריקת ברקודים</h1>
-        <div id="reader"></div>
-        <div class="result" id="result">אין נתונים לסריקה עדיין.</div>
-        <button onclick="startScanner()">הפעל סורק</button>
-    </div>
+    <div id="reader"></div>
+
     <script>
-        // פונקציה להפעלת הסורק
-        function startScanner() {
-            console.log("בודק תמיכה ב-API מצלמה...");
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert("הדפדפן שלך לא תומך בגישה למצלמה.");
-                console.error("אין תמיכה ב-navigator.mediaDevices.getUserMedia");
-                return;
-            }
-
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then((stream) => {
-                    console.log("מצלמה פעילה, מתחיל סריקה...");
-                    const html5QrCode = new Html5Qrcode("reader");
-                    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-
-                    html5QrCode.start(
-                        { facingMode: "environment" }, // מצלמה אחורית
-                        config,
-                        (decodedText) => {
-                            console.log("ברקוד נסרק בהצלחה:", decodedText);
-                            document.getElementById("result").innerText = `תוצאה: ${decodedText}`;
-                            html5QrCode.stop(); // עצירת הסריקה לאחר תוצאה
-                        },
-                        (error) => {
-                            console.warn("שגיאה בסריקה:", error);
-                            document.getElementById("result").innerText = `שגיאה: ${error}`;
-                        }
-                    ).catch((err) => {
-                        console.error("שגיאה באתחול Html5Qrcode:", err);
-                        document.getElementById("result").innerText = `שגיאה בהתחלת הסורק: ${err.message}`;
-                    });
-                })
-                .catch((err) => {
-                    console.error("שגיאה בגישה למצלמה:", err);
-                    alert("לא ניתן לפתוח את המצלמה. ודא שיש הרשאות מתאימות במכשיר ובדפדפן.");
-                });
+        function onScanSuccess(decodedText, decodedResult) {
+            // כשנמצא ברקוד, עובר לקישור
+            window.location.href = decodedText;
         }
+
+        function onScanFailure(error) {
+            // מטפל בשגיאות סריקה
+            console.warn(`שגיאת קוד: ${error}`);
+        }
+
+        // הגדרות סורק הברקודים
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", 
+            { 
+                fps: 10,
+                qrbox: {width: 250, height: 250},
+                aspectRatio: 1.0
+            }
+        );
+        
+        // מתחיל את הסריקה
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
     </script>
 </body>
 </html>
