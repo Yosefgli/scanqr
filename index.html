@@ -1,46 +1,15 @@
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>סריקת ברקודים</title>
-    <!-- טוען את ספריית html5-qrcode -->
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            margin: 20px;
-        }
-        #reader {
-            width: 100%;
-            max-width: 400px;
-            height: 300px;
-            margin: auto;
-        }
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #333;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>סריקת ברקודים</h1>
-        <div id="reader"></div>
-        <div class="result" id="result">אין נתונים לסריקה עדיין.</div>
-        <button onclick="startScanner()">הפעל סורק</button>
-    </div>
-    <script>
-        // פונקציה להפעלת הסורק
-        function startScanner() {
-            const html5QrCode = new Html5Qrcode("reader"); // ודא שהספרייה נטענה קודם
+function startScanner() {
+    // בדיקה אם המכשיר תומך ב-API של מצלמה
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("הדפדפן שלך לא תומך בגישה למצלמה.");
+        return;
+    }
 
+    // בקשת גישה למצלמה
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then((stream) => {
+            // אם ההרשאה ניתנה, הפעל את Html5Qrcode
+            const html5QrCode = new Html5Qrcode("reader");
             const config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
             html5QrCode.start(
@@ -51,12 +20,15 @@
                     html5QrCode.stop(); // עצירת הסריקה לאחר תוצאה
                 },
                 (error) => {
-                    console.warn(`שגיאה: ${error}`);
+                    console.warn(`שגיאה בסריקה: ${error}`);
                 }
-            ).catch(err => {
-                console.error("שגיאה באתחול המצלמה:", err);
+            ).catch((err) => {
+                console.error("שגיאה באתחול Html5Qrcode:", err);
             });
-        }
-    </script>
-</body>
-</html>
+        })
+        .catch((err) => {
+            // אם המשתמש דחה את הגישה או יש שגיאה
+            console.error("שגיאה בגישה למצלמה:", err);
+            alert("לא ניתן לפתוח את המצלמה. ודא שיש הרשאות מתאימות במכשיר ובדפדפן.");
+        });
+}
