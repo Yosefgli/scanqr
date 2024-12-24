@@ -33,35 +33,38 @@
         <h1>סריקת ברקודים</h1>
         <div id="reader"></div>
         <div class="result" id="result">אין נתונים לסריקה עדיין.</div>
+        <button onclick="startScanner()">הפעל סורק</button>
     </div>
     <script>
-        // הגדרת הסורק
-        const html5QrCode = new Html5Qrcode("reader");
+        let html5QrCode;
 
-        // פונקציה להפעלת הסורק
         function startScanner() {
-            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            html5QrCode = new Html5Qrcode("reader");
 
-            html5QrCode.start(
-                { facingMode: "environment" }, // מצלמה אחורית
-                config,
-                (decodedText) => {
-                    // הצלחה: הצגת התוצאה
-                    document.getElementById("result").innerText = `תוצאה: ${decodedText}`;
-                    html5QrCode.stop(); // עצירת הסריקה לאחר תוצאה
-                },
-                (error) => {
-                    console.warn(`שגיאה: ${error}`);
-                }
-            ).catch(err => {
-                console.error("שגיאה באתחול המצלמה:", err);
-            });
+            // בקשת מצלמה אקטיבית
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(() => {
+                    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+                    html5QrCode.start(
+                        { facingMode: "environment" }, // מצלמה אחורית
+                        config,
+                        (decodedText) => {
+                            document.getElementById("result").innerText = `תוצאה: ${decodedText}`;
+                            html5QrCode.stop(); // עצירת הסריקה לאחר תוצאה
+                        },
+                        (error) => {
+                            console.warn(`שגיאה: ${error}`);
+                        }
+                    ).catch(err => {
+                        console.error("שגיאה באתחול המצלמה:", err);
+                    });
+                })
+                .catch((err) => {
+                    alert("גישה למצלמה נדחתה או שגיאה בגישה למצלמה.");
+                    console.error("שגיאת גישה למצלמה:", err);
+                });
         }
-
-        // הפעלת הסורק ברגע שהדף נטען
-        window.onload = () => {
-            startScanner();
-        };
     </script>
 </body>
 </html>
