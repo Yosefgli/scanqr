@@ -24,27 +24,34 @@
         let html5QrcodeScanner;
 
         function onScanSuccess(decodedText, decodedResult) {
-            // עוצר את הסריקה
-            html5QrcodeScanner.clear();
-            // עובר לקישור
-            window.location.href = decodedText;
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear().then(() => {
+                    window.location.href = decodedText;
+                }).catch((err) => {
+                    console.error(err);
+                });
+            }
         }
 
         function onScanFailure(error) {
             console.warn(`שגיאת קוד: ${error}`);
         }
 
-        html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", 
-            { 
-                fps: 10,
-                qrbox: {width: 250, height: 250},
-                aspectRatio: 1.0,
-                formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
+        // איתחול מחדש בטעינת הדף
+        window.addEventListener('load', () => {
+            if (!html5QrcodeScanner) {
+                html5QrcodeScanner = new Html5QrcodeScanner(
+                    "reader", 
+                    { 
+                        fps: 10,
+                        qrbox: {width: 250, height: 250},
+                        aspectRatio: 1.0,
+                        formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
+                    }
+                );
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
             }
-        );
-        
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        });
     </script>
 </body>
 </html>
