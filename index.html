@@ -78,9 +78,11 @@
                         },
                         (error) => {
                             console.warn("שגיאה בסריקה:", error);
+                            document.getElementById("result").innerText = `שגיאה: ${error}`;
                         }
                     ).catch((err) => {
                         console.error("שגיאה באתחול Html5Qrcode:", err);
+                        document.getElementById("result").innerText = `שגיאה בהתחלת הסורק: ${err.message}`;
                     });
                 })
                 .catch((err) => {
