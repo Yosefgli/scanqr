@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>סורק ברקודים</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        #reader {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="reader"></div>
+    <script>
+        let html5QrcodeScanner;
+        
+        function onScanSuccess(decodedText, decodedResult) {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear().then(() => {
+                    // בדיקה אם יש פרמטר nekuda בכתובת הנוכחית
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const nekudaParam = urlParams.get('nekuda');
+                    
+                    let redirectUrl = decodedText;
+                    
+                    // אם יש פרמטר nekuda, נוסיף אותו לכתובת היעד
+                    if (nekudaParam) {
+                        // בדיקה אם יש כבר פרמטרים בכתובת היעד
+                        if (redirectUrl.includes('?')) {
+                            redirectUrl += '&nekuda=' + encodeURIComponent(nekudaParam);
+                        } else {
+                            redirectUrl += '?nekuda=' + encodeURIComponent(nekudaParam);
+                        }
+                    }
+                    
+                    window.location.href = redirectUrl;
+                }).catch((err) => {
+                    console.error(err);
+                });
+            }
+        }
+        
+        function onScanFailure(error) {
+            console.warn(`שגיאת קוד: ${error}`);
+        }
+        
+        // איתחול מחדש בטעינת הדף
+        window.addEventListener('load', () => {
+            if (!html5QrcodeScanner) {
+                html5QrcodeScanner = new Html5QrcodeScanner(
+                    "reader", 
+                    { 
+                        fps: 10,
+                        qrbox: {width: 250, height: 250},
+                        aspectRatio: 1.0,
+                        formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
+                    }
+                );
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            }
+        });
+    </script>
+</body>
+</html>
